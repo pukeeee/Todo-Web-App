@@ -1,14 +1,13 @@
 from sqlalchemy import select, update, delete, func
 from models import async_session, User, Task
 from pydantic import BaseModel, ConfigDict
-from typing import List
 
 
 
 class TaskSchema(BaseModel):
     id: int
     user: int
-    title: str
+    text: str
     status: bool
     
     model_config = ConfigDict(from_attributes = True)
@@ -18,15 +17,15 @@ class TaskSchema(BaseModel):
 async def setUser(tgId):
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tgId == tgId))
-        
-        if not user:
-            new_user = User(tgId = tgId)
-            session.add(new_user)
-            await session.comit()
-            await session.refresh(new_user)
-            return new_user
-        
-        return user
+        if user:
+            return
+            
+        new_user = User(tgId = tgId)
+        session.add(new_user)
+        await session.comit()
+        await session.refresh(new_user)
+        return new_user
+
 
 
 async def addTask(userId, text):
@@ -41,7 +40,7 @@ async def addTask(userId, text):
 
 async def markAsCompleted(taskId):
     async with async_session() as session:
-        await session.execute(update(Task).where(Task.id == taskId).value(status = True))
+        await session.execute(update(Task).where(Task.id == taskId).values(status = True))
         await session.commit()
 
 
