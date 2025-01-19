@@ -2,8 +2,17 @@ from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database.models import init_db
-import database.requests as rq
+from models import init_db
+import requestsdb as rq
+
+
+class AddTask(BaseModel):
+    tgId: int
+    text: str
+
+
+class CompleteTask(BaseModel):
+    id: int
 
 
 @asynccontextmanager
@@ -36,3 +45,16 @@ async def getProfile(tgId: int):
     user = await rq.setUser(tgId)
     completedTasksCounter = await rq.getCompletedTasksCounter(user.id)
     return {"completedTasksCounter": completedTasksCounter}
+
+
+@app.post("api/add")
+async def addTask(task: AddTask):
+    user = await rq.setUser(task.tgId)
+    await rq.addTask(user.id, task.text)
+    return {"status": "ok"}
+
+
+@app.fetch("api/completed")
+async def markAsCompleted(task: CompleteTask):
+    await rq.markAsCompleted(task.id)
+    return {"status": "ok"}
