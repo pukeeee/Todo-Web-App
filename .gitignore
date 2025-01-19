@@ -1,2 +1,13 @@
 .env
 .venv
+front/.firebaserc
+__pycache__
+front/.firebase
+front/package-lock.json
+front/vite.config.js
+front/node_modules
+front/.vscode
+front/firebase.json
+front/jsconfig.json
+front/package.json
+back/db.sqlite3

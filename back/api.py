@@ -54,7 +54,7 @@ async def addTask(task: AddTask):
     return {"status": "ok"}
 
 
-@app.fetch("api/completed")
+@app.patch("api/completed")
 async def markAsCompleted(task: CompleteTask):
     await rq.markAsCompleted(task.id)
     return {"status": "ok"}
