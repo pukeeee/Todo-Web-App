@@ -34,27 +34,33 @@ app.add_middleware(
 )
 
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Task Tracker API"}
+
+
 @app.get("/api/tasks/{tgId}")
 async def getTasks(tgId: int):
     user = await rq.setUser(tgId)
     return await rq.getTask(user.id)
 
 
-@app.get("api/profile/{tgId}")
+@app.get("/api/profile/{tgId}")
 async def getProfile(tgId: int):
     user = await rq.setUser(tgId)
     completedTasksCounter = await rq.getCompletedTasksCounter(user.id)
     return {"completedTasksCounter": completedTasksCounter}
 
 
-@app.post("api/add")
+@app.post("/api/add")
 async def addTask(task: AddTask):
     user = await rq.setUser(task.tgId)
     await rq.addTask(user.id, task.text)
     return {"status": "ok"}
 
 
-@app.patch("api/completed")
+@app.patch("/api/completed")
 async def markAsCompleted(task: CompleteTask):
     await rq.markAsCompleted(task.id)
     return {"status": "ok"}

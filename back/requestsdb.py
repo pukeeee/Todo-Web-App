@@ -18,11 +18,11 @@ async def setUser(tgId):
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tgId == tgId))
         if user:
-            return
+            return user
             
         new_user = User(tgId = tgId)
         session.add(new_user)
-        await session.comit()
+        await session.commit()
         await session.refresh(new_user)
         return new_user
 

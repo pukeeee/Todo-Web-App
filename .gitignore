@@ -11,3 +11,5 @@ front/firebase.json
 front/jsconfig.json
 front/package.json
 back/db.sqlite3
+back/config.py
+front/dist
