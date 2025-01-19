@@ -1,7 +1,10 @@
 <template>
-  <div class="app_container">
+  <div class="app-container">
 
-    <router-view />
+    <div class="content">
+      <router-view />
+    </div>
+
     <Navbar />
 
   </div>
@@ -19,13 +22,32 @@ export default {
 </script>
 
 
-<style scoped>
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 98vh;
+<style>
+body, #app {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden; /* Убираем горизонтальную прокрутку */
+  width: 100%;
+  height: 100vh; /* Занимаем всю высоту экрана */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
     Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(to bottom right, #f0f0f0, #ffffff);
+  background: linear-gradient(to bottom right, #441752, #69247C); /* Фон приложения */
+  background-repeat: no-repeat; /* Запрещаем повторение */
+  background-size: cover; /* Фон на всю область */
 }
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Занимаем всю высоту экрана */
+    overflow: hidden; /* Убираем скролл всего контейнера */
+}
+
+.content {
+    flex: 1; /* Контейнер для основного содержимого */
+    overflow-y: auto; /* Прокрутка только для задач */
+    padding-bottom: 80px; /* Добавляем отступ для навбара */
+}
+
 </style>

@@ -4,7 +4,7 @@
             <input 
                 v-model="newTask"
                 type="text"
-                placeholder="Введите задачу..."
+                placeholder="Enter a task..."
                 class="task-input"
                 @keyup.enter="createTask"
             />
@@ -22,7 +22,8 @@
                 </div>
                 <button
                     class="complete-button"
-                    @click="completeTask(task.id)">Выполнено
+                    @click="completeTask(task.id)">
+                    Mark as done
                 </button>
             </div>
         </div>
@@ -45,22 +46,28 @@ export default {
         async fetchTasks() {
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://fuzzy-invention-9g75g67jvx52p44q-8000.app.github.dev/api/tasks/${tg_user.id}`)
+                const response = await fetch(`https://peaceful-curious-kite.ngrok-free.app/api/tasks/${tg_user.id}`, {
+                    method: 'GET',
+                    headers: {'ngrok-skip-browser-warning': 'true'}
+                })
                 const data = await response.json()
                 this.tasks = data
             } catch (error) {
                 console.log('error', error)
             }
         },
+
+
         async createTask() {
             if (!this.newTask) return
 
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://fuzzy-invention-9g75g67jvx52p44q-8000.app.github.dev/api/add`, {
+                const response = await fetch(`https://peaceful-curious-kite.ngrok-free.app/api/add`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify({ tgId: tg_user.id, text: this.newTask })
                 })
@@ -70,16 +77,17 @@ export default {
                 } else {
                     console.error('Ошибка', response.status)
                 }
-            } catch (eror) {
+            } catch (error) {
                 console.log('Ошибка', error)
             }
         },
         async completeTask(taskId) {
             try {
-                const response = await fetch(`https://fuzzy-invention-9g75g67jvx52p44q-8000.app.github.dev/api/completed`, {
+                const response = await fetch(`https://peaceful-curious-kite.ngrok-free.app/api/completed`, {
                     method: 'PATCH',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify({ id: taskId })
                 })
@@ -88,7 +96,7 @@ export default {
                 } else {
                     console.error('Ошибка', response.status)
                 }
-            } catch (eror) {
+            } catch (error) {
                 console.log('Ошибка', error)
             }
         }
@@ -98,11 +106,12 @@ export default {
 
 <style scoped>
 .tasks-container {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    overflow-y: auto; /* Прокрутка, если задач много */
+    flex-grow: 1; /* Позволяет контейнеру занимать доступное пространство */
+    padding: 0 16px;
+    height: calc(100vh - 80px); /* Учитываем высоту навбара */
+    background: none; /* Убираем повторяющийся фон */
 }
 
 .tasks-header {
@@ -111,6 +120,10 @@ export default {
     justify-content: center;
     align-items: center;
     margin-bottom: 16px;
+    position: sticky; /* Фиксируем заголовок */
+    top: 0; /* Фиксируем его у верхней границы контейнера */
+    z-index: 5;
+    padding: 8px 0;
 }
 
 .task-input {
@@ -139,6 +152,10 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex-grow: 1; /* Растягиваем список задач */
+    overflow-y: auto; /* Прокрутка, если задач много */
+    background: none; /* Убедись, что фон отсутствует */
+    max-height: calc(100vh - 80px - 60px); /* Высота экрана - навбар - шапка */
 }
 
 .task-item {

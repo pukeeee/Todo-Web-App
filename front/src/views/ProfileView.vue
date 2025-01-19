@@ -28,7 +28,10 @@ export default {
         async fetchProfile() {
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://fuzzy-invention-9g75g67jvx52p44q-8000.app.github.dev/api/profile/${tg_user.id}`)
+                const response = await fetch(`https://peaceful-curious-kite.ngrok-free.app/api/profile/${tg_user.id}`, {
+                    method: 'GET',
+                    headers: {'ngrok-skip-browser-warning': 'true'}
+                })
                 const data = await response.json()
                 this.user.id = tg_user.id
                 this.user.name = tg_user.first_name
@@ -43,12 +46,11 @@ export default {
 
 <style scoped>
 .profile-container {
-    flex: 1;
+    height: 100vh; /* Занимаем всю высоту */
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    padding: 16px;
+    /* background-color: linear-gradient(to bottom right, #441752, #69247C);  Тот же цвет фона */
 }
 
 .profile-info {

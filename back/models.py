@@ -1,12 +1,12 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
-# from dotenv import load_dotenv
+from config import DATABASE_URL
 import os
 
 # load_dotenv()
 # DATABASE_URL = os.getenv('DATABASE_URL')
-DATABASE_URL = "sqlite+aiosqlite:///db.sqlite3"
+
 engine = create_async_engine(DATABASE_URL, echo = True)
 
 async_session = async_sessionmaker(bind = engine, expire_on_commit = False)
