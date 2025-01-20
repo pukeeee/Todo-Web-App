@@ -13,3 +13,4 @@ front/package.json
 back/db.sqlite3
 back/config.py
 front/dist
+front/src/config.js

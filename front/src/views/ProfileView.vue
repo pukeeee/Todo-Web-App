@@ -12,6 +12,7 @@
 
 
 <script>
+import { API_URL } from '../config.js';
 
 import Header from '@/components/Header.vue';
 import SidebarMenu from '@/components/SidebarMenu.vue';
@@ -42,7 +43,7 @@ export default {
         async fetchProfile() {
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://55d3-95-67-63-213.ngrok-free.app/api/profile/${tg_user.id}`, {
+                const response = await fetch(`${API_URL}/api/profile/${tg_user.id}`, {
                     method: 'GET',
                     headers: {'ngrok-skip-browser-warning': 'true'}
                 })
