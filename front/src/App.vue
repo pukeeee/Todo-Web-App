@@ -29,10 +29,10 @@ body, #app {
   box-sizing: border-box;
   overflow: hidden; /* Убираем горизонтальную прокрутку */
   width: 100%;
-  height: 100vh; /* Занимаем всю высоту экрана */
+  min-height: 100vh; /* Занимаем всю высоту экрана */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
     Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(to bottom right, #441752, #69247C); /* Фон приложения */
+  background: linear-gradient(to bottom right, #FFCFEF, #AEEA94); /* Фон приложения */
   background-repeat: no-repeat; /* Запрещаем повторение */
   background-size: cover; /* Фон на всю область */
 }
@@ -47,7 +47,6 @@ body, #app {
 .content {
     flex: 1; /* Контейнер для основного содержимого */
     overflow-y: auto; /* Прокрутка только для задач */
-    padding-bottom: 80px; /* Добавляем отступ для навбара */
 }
 
 </style>
