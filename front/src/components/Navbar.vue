@@ -5,11 +5,11 @@
         </router-link>
 
         <router-link to="/" class="nav-link">
-            <i class="fas fa-tasks"></i> Task Tracker
+            <i class="fas fa-tasks"></i> Tasks
         </router-link>
 
         <router-link to="/habit-tracker" class="nav-link">
-            <i class="fas fa-calendar-check"></i> Habit Tracker
+            <i class="fas fa-calendar-check"></i> Habits
         </router-link>
     </nav>
 </template>
@@ -33,7 +33,7 @@ export default {
     left: 0;
     width: 100%; /* Растягиваем на всю ширину экрана */
     height: 80px;
-    background-color: #B771E5;
+    background-color: #2A3335;
     backdrop-filter: blur(10px);
     border-top: 1px solid #ccc;
     z-index: 10; /* Обеспечиваем, чтобы навбар находился поверх остальных элементов */
