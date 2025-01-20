@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import { API_URL } from '../config.js';
+
 export default {
     name: 'TasksView',
     data() {
@@ -46,7 +48,7 @@ export default {
         async fetchTasks() {
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://55d3-95-67-63-213.ngrok-free.app/api/tasks/${tg_user.id}`, {
+                const response = await fetch(`${API_URL}/api/tasks/${tg_user.id}`, {
                     method: 'GET',
                     headers: {'ngrok-skip-browser-warning': 'true'}
                 })
@@ -63,7 +65,7 @@ export default {
 
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`https://55d3-95-67-63-213.ngrok-free.app/api/add`, {
+                const response = await fetch(`${API_URL}/api/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -83,7 +85,7 @@ export default {
         },
         async completeTask(taskId) {
             try {
-                const response = await fetch(`https://55d3-95-67-63-213.ngrok-free.app/api/completed`, {
+                const response = await fetch(`${API_URL}/api/completed`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
