@@ -14,3 +14,5 @@ back/db.sqlite3
 back/config.py
 front/dist
 front/src/config.js
+back/images
+.DS_Store

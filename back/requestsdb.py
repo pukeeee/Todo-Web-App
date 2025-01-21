@@ -1,6 +1,7 @@
 from sqlalchemy import select, update, delete, func
-from models import async_session, User, Task
+from models import async_session, User, Task, Profile
 from pydantic import BaseModel, ConfigDict
+import time
 
 
 
@@ -20,11 +21,10 @@ async def setUser(tgId):
         if user:
             return user
             
-        new_user = User(tgId = tgId)
-        session.add(new_user)
+        unix_time = int(time.time())
+        session.add(User(tgId = tgId, start_date = unix_time))
         await session.commit()
-        await session.refresh(new_user)
-        return new_user
+        return user
 
 
 
@@ -57,6 +57,24 @@ async def getTask(userId):
 
 
 
-async def getCompletedTasksCounter(userId):
+async def getProfile(userId):
     async with async_session() as session:
-        return await session.scalar(select(func.count(Task.id)).where(Task.status == True, Task.user == userId))
+        profile = await session.scalar(select(Profile).where(Profile.user == userId))
+        if not profile:
+            # Создаём новый профиль, если его нет
+            new_profile = Profile(
+                user=userId,  # Используем userId
+                user_name="Guest",
+                race="Human",
+                sex="",
+                clas="Exile"
+            )
+            session.add(new_profile)
+            await session.commit()
+            return new_profile  # Возвращаем созданный профиль
+        
+        return profile  # Возвращаем найденный профиль
+
+# async def getCompletedTasksCounter(userId):
+#     async with async_session() as session:
+#         return await session.scalar(select(func.count(Task.id)).where(Task.status == True, Task.user == userId))
