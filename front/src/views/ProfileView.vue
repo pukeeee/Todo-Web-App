@@ -1,11 +1,24 @@
 <template>
     <div class="profile-container">
         <Header @toggleMenu="toggleMenu"></Header>
-        <div class="profile-info">
-            <p><strong>ID:</strong> {{ user.id }}</p>
-            <p><strong>Name:</strong> {{ user.name }}</p>
-            <p><strong>Tasks completed:</strong> {{ user.completedTasksCounter }}</p>
+        <!-- Отображение загрузки -->
+        <div v-if="isLoading" class="loading">Loading...</div>
+
+        <div class="profile-content">
+            <!-- Картинка профиля -->
+            <div v-if="profile.image_path" class="profile-image">
+                <img :src="`${API_URL}/${profile.image_path}`" alt="Profile Image" />
+            </div>
+
+            <!-- Информация о профиле -->
+            <div class="profile-info">
+                <p><strong>Name:</strong> {{ profile.user_name }}</p>
+                <p><strong>Race:</strong> {{ profile.race }}</p>
+                <p><strong>Class:</strong> {{ profile.clas }}</p>
+            </div>
         </div>
+
+        <!-- Сайдбар -->
         <SidebarMenu :isVisible="isMenuOpen" @closeMenu="toggleMenu" />
     </div>
 </template>
@@ -25,11 +38,14 @@ export default {
     },
     data() {
         return {
-            user: {
-                id: '',
-                name: '',
-                completedTasksCounter: 0
+            API_URL,
+            profile: {
+                user_name: 'Guest',
+                race: 'Human',
+                clas: 'Exile',
+                image_path: ''
             },
+            isLoading: true,
             isMenuOpen: false,
         }
     },
@@ -48,11 +64,19 @@ export default {
                     headers: {'ngrok-skip-browser-warning': 'true'}
                 })
                 const data = await response.json()
-                this.user.id = tg_user.id
-                this.user.name = tg_user.first_name || 'Guest';
-                this.user.completedTasksCounter = data.completedTasksCounter
+                this.profile = {
+                    user_name: data.user_name || 'Guest',
+                    race: data.race || 'Human',
+                    clas: data.clas || 'Warrior',
+                    sex: data.sex || 'Male',
+                    image_path: data.image_path || ''
+                };
+                
             } catch (error) {
                 console.log(error)
+            } finally {
+                // Убираем состояние загрузки
+                this.isLoading = false;
             }
         }
     }
@@ -68,6 +92,14 @@ export default {
     overflow: hidden; /* Убираем прокрутку для контейнера, даже если содержимое выходит за границы */
 }
 
+.profile-content {
+    display: flex; /* Flexbox для горизонтального расположения */
+    flex-direction: row; /* Размещаем элементы по горизонтали */
+    align-items: center; /* Выравниваем элементы по вертикали */
+    margin-top: 80px; /* Отступ от хедера */
+    gap: 16px; /* Расстояние между картинкой и информацией */
+}
+
 .profile-info {
     background-color: #ffffffcc; /* Задаём полупрозрачный белый фон для блока информации */
     backdrop-filter: blur(8px); /* Добавляем эффект размытия для фона за элементом */
@@ -76,8 +108,21 @@ export default {
     text-align: left; /* Выравниваем текст внутри блока по левому краю */
     box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.2); 
 /* 4px по горизонтали, 4px по вертикали, 10px размытие, 2px расширение, цвет черный с прозрачностью */
-    margin-top: 80px; /* Отступ сверху, чтобы разместить блок ниже хедера */
+
     width: 100%; /* Блок занимает всю доступную ширину контейнера */
     max-width: 320px; /* Ограничиваем максимальную ширину блока для удобного чтения на больших экранах */
+}
+
+.loading {
+    margin-top: 80px; /* Отступ для размещения ниже хедера */
+    font-size: 18px;
+    color: #666;
+    text-align: center;
+}
+
+.profile-image img {
+    width: 200px; /* Ширина картинки */
+    border-radius: 10%; /* Скругляем изображение для аватара */
+    object-fit: cover; /* Устанавливаем пропорции без обрезки */
 }
 </style>

@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from models import init_db
 import requestsdb as rq
 
@@ -23,6 +24,8 @@ async def lifespan(app_: FastAPI):
 
 
 app = FastAPI(title = "ToDo App", lifespan = lifespan)
+
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 
 app.add_middleware(
@@ -48,9 +51,19 @@ async def getTasks(tgId: int):
 
 @app.get("/api/profile/{tgId}")
 async def getProfile(tgId: int):
+    # Убедимся, что пользователь существует
     user = await rq.setUser(tgId)
-    completedTasksCounter = await rq.getCompletedTasksCounter(user.id)
-    return {"completedTasksCounter": completedTasksCounter}
+    # Получаем или создаём профиль
+    profile = await rq.getProfile(user.id)
+    image_path = f"images/{profile.race}/{profile.sex}/{profile.clas}/{profile.avatar}"
+    # Возвращаем профиль в формате JSON
+    return {
+        "user_name": profile.user_name,
+        "race": profile.race,
+        "sex": profile.sex,
+        "clas": profile.clas,
+        "image_path": image_path
+    }
 
 
 @app.post("/api/add")
