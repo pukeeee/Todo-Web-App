@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from models import init_db
 import requestsdb as rq
 
@@ -25,7 +26,6 @@ async def lifespan(app_: FastAPI):
 
 app = FastAPI(title = "ToDo App", lifespan = lifespan)
 
-app.mount("/images", StaticFiles(directory="images"), name="images")
 
 
 app.add_middleware(
@@ -33,8 +33,17 @@ app.add_middleware(
     allow_origins = ["*"], # url адресс отправленных запросов
     allow_credentials = True, 
     allow_methods = ["*"],
-    allow_headers = ["*"]
+    allow_headers = ["*"],
+    expose_headers=["Content-Type"]
 )
+
+@app.middleware("http")
+async def add_csp_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:;"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
 
 
 
@@ -55,14 +64,12 @@ async def getProfile(tgId: int):
     user = await rq.setUser(tgId)
     # Получаем или создаём профиль
     profile = await rq.getProfile(user.id)
-    image_path = f"images/{profile.race}/{profile.sex}/{profile.clas}/{profile.avatar}"
+    
     # Возвращаем профиль в формате JSON
     return {
         "user_name": profile.user_name,
         "race": profile.race,
-        "sex": profile.sex,
-        "clas": profile.clas,
-        "image_path": image_path
+        "clas": profile.clas
     }
 
 
