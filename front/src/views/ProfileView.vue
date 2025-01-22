@@ -6,8 +6,9 @@
 
         <div class="profile-content">
             <!-- Картинка профиля -->
-            <div v-if="profile.image_path" class="profile-image">
-                <img :src="`${API_URL}/${profile.image_path}`" alt="Profile Image" />
+            <div class="profile-image">
+                <!-- Путь к картинке из папки public/assets -->
+                <img src="/assets/images/1.png" alt="Profile Image" />
             </div>
 
             <!-- Информация о профиле -->
@@ -42,8 +43,7 @@ export default {
             profile: {
                 user_name: 'Guest',
                 race: 'Human',
-                clas: 'Exile',
-                image_path: ''
+                clas: 'Exile'
             },
             isLoading: true,
             isMenuOpen: false,
@@ -63,14 +63,8 @@ export default {
                     method: 'GET',
                     headers: {'ngrok-skip-browser-warning': 'true'}
                 })
-                const data = await response.json()
-                this.profile = {
-                    user_name: data.user_name || 'Guest',
-                    race: data.race || 'Human',
-                    clas: data.clas || 'Warrior',
-                    sex: data.sex || 'Male',
-                    image_path: data.image_path || ''
-                };
+                const data = await response.json();
+                this.profile = data;
                 
             } catch (error) {
                 console.log(error)
