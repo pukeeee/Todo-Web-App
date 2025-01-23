@@ -32,7 +32,8 @@ body, #app {
 	min-height: 100vh; /* Занимаем всю высоту экрана */
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
 	Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-	background: linear-gradient(to bottom right, #FFCFEF, #AEEA94); /* Фон приложения */
+	/* background: linear-gradient(to bottom right, #FFCFEF, #AEEA94); Фон приложения */
+	background: #282A36; /* Фон приложения */
 	background-repeat: no-repeat; /* Запрещаем повторение */
 	background-size: cover; /* Фон на всю область */
 }

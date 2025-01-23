@@ -33,29 +33,40 @@ export default {
     left: 0;
     width: 100%; /* Растягиваем на всю ширину экрана */
     height: 80px;
-    background-color: #2A3335;
+    background-color: #44475A;
     backdrop-filter: blur(10px);
-    border-top: 1px solid #ccc;
+    /* border-top: 1px solid #ccc; */
     z-index: 10; /* Обеспечиваем, чтобы навбар находился поверх остальных элементов */
 }
+
+/* .navbar .nav-link.router-link-exact-active {
+    color: #FF79C6 !important;
+} */
 
 .nav-link {
     flex: 1; /* Каждая кнопка занимает равную долю ширины */
     text-align: center; /* Выравнивание текста по центру */
     text-decoration: none;
-    color: #FFFBCA;
+    color: #F8F8F2;
     font-size: 18px;
     font-weight: 500;
     display: flex;
     justify-content: center; /* Центрирование текста и иконок */
     align-items: center;
     gap: 10px;
-    border-right: 1px solid #AEEA94; /* Разделитель */
+    /* border-right: 1px solid #FF79C6; */
     padding: 0 10px; /* Внутренние отступы */
+    height: 100%;
 }
 
 .nav-link:last-child {
     border-right: none; /* Убираем разделитель у последней кнопки */
+}
+
+.nav-link.router-link-exact-active {
+    background-color: #282A36; /* Темный фон для активной кнопки */
+    color: #FF79C6; /* Белый текст */
+    font-weight: bold; /* Жирный шрифт для выделения */
 }
 
 .nav-link i {
@@ -63,6 +74,13 @@ export default {
 }
 
 .nav-link:hover {
+    background-color: #FF79C6;
     color: white;
 }
+
+.nav-link.router-link-exact-active:hover {
+    background-color: #282A36 !important; /* Убедитесь, что hover не перекрывает активное состояние */
+    color: #FF79C6 !important; /* Оставляем цвет текста активной кнопки */
+}
+
 </style>
