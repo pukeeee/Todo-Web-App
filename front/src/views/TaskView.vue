@@ -138,10 +138,9 @@ export default {
 }
 
 .add-button {
-    background-color: #007aff; /* Цвет в стиле iOS */
+    background-color: #FF79C6; /* Цвет в стиле iOS */
     color: white;
     border: none;
-    padding: 0 16px;
     font-size: 24px;
     border-radius: 50%;
     cursor: pointer;
