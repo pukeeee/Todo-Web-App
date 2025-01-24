@@ -53,7 +53,7 @@ export default {
     display: flex;
     justify-content: center; /* Центрирование текста и иконок */
     align-items: center;
-    gap: 10px;
+    /* gap: 10px; */
     /* border-right: 1px solid #FF79C6; */
     padding: 0 10px; /* Внутренние отступы */
     height: 100%;
@@ -65,7 +65,7 @@ export default {
 
 .nav-link.router-link-exact-active {
     background-color: #282A36; /* Темный фон для активной кнопки */
-    color: #FF79C6; /* Белый текст */
+    color: #FF79C6; 
     font-weight: bold; /* Жирный шрифт для выделения */
 }
 
@@ -78,9 +78,6 @@ export default {
     color: white;
 }
 
-.nav-link.router-link-exact-active:hover {
-    background-color: #282A36 !important; /* Убедитесь, что hover не перекрывает активное состояние */
-    color: #FF79C6 !important; /* Оставляем цвет текста активной кнопки */
-}
+
 
 </style>

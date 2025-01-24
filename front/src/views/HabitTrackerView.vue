@@ -13,18 +13,18 @@
             </div>
             <div class="tab-panels">
                 <div
-                    v-for="(posts, index) in Object.values(categories)"
+                    v-for="(tasks, index) in Object.values(categories)"
                     :key="index"
                     v-show="activeTab === index"
                     class="tab-panel"
                 >
                     <ul>
                         <li
-                            v-for="post in posts"
-                            :key="post.id"
+                            v-for="task in tasks"
+                            :key="task.id"
                             class="post-item"
                         >
-                            <h3 class="post-title">{{ post.title }}</h3>
+                            <h3 class="post-title">{{ task.text }}</h3>
 
                         </li>
                     </ul>
@@ -36,53 +36,39 @@
 
 <script>
 import { ref } from 'vue';
+import { API_URL } from '../config.js';
 
 export default {
     name: 'HabitTrackerView',
     setup() {
-        const activeTab = ref(0);
+        const activeTab = ref(1);
         const categories = ref({
-            "Completed": [
-                {
-                    id: 1,
-                    title: 'Does drinking coffee make you smarter? Хуй пенис Хуй пенис Хуй пенис'
-                },
-                {
-                    id: 2,
-                    title: "So you've bought coffee... now what?"
-                },
-            ],
-            "In Progress": [
-                {
-                    id: 1,
-                    title: 'Is tech making coffee better or worse?'
-                },
-                {
-                    id: 2,
-                    title: 'The most innovative things happening in coffee'
-                },
-            ]
-            // Trending: [
-            //     {
-            //         id: 1,
-            //         title: 'Ask Me Anything: 10 answers to your questions about coffee',
-            //         date: '2d ago',
-            //         commentCount: 9,
-            //         shareCount: 5,
-            //     },
-            //     {
-            //         id: 2,
-            //         title: "The worst advice we've ever heard about coffee",
-            //         date: '4d ago',
-            //         commentCount: 1,
-            //         shareCount: 2,
-            //     },
-            // ],
+            "Completed": [],
+            "In Progress": []
         });
 
-        const setActiveTab = (index) => {
-            activeTab.value = index;
+        const fetchTasks = async () => {
+            try {
+                const tg_user = window.Telegram.WebApp.initDataUnsafe?.user;
+                const response = await fetch(`${API_URL}/api/tasks/${tg_user.id}`, {
+                    method: 'GET',
+                    headers: { 'ngrok-skip-browser-warning': 'true' },
+                });
+                const data = await response.json();
+                // Разделение задач по статусу
+                categories.value['In Progress'] = data.filter((task) => task.status == 0);
+                categories.value['Completed'] = data.filter((task) => task.status == 1);
+            } catch (error) {
+                console.log('Error fetching tasks:', error);
+            }
         };
+
+        const setActiveTab = async (index) => {
+            activeTab.value = index;
+            await fetchTasks();
+        };
+
+        fetchTasks();
 
         return {
             activeTab,
@@ -155,6 +141,8 @@ export default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
     list-style-type: none;
     box-sizing: border-box; /* Включаем отступы в ширину контейнера */
+    overflow-y: auto; /* Добавляем прокрутку */
+    max-height: calc(100vh - 160px); /* Учитываем высоту экрана и оставляем отступ снизу */
 }
 
 .post-item {
@@ -199,7 +187,7 @@ ul {
 }
 
 
-/* Адаптивность
+
 @media (max-width: 768px) {
     .habit-tracker-container {
         padding: 8px;
@@ -212,5 +200,5 @@ ul {
     .post-item {
         padding: 8px;
     }
-} */
+}
 </style>
