@@ -16,3 +16,4 @@ front/dist
 front/src/config.js
 back/images
 .DS_Store
+front/dist/index.html
