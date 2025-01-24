@@ -47,7 +47,7 @@ async def markAsCompleted(taskId):
 
 async def getTask(userId):
     async with async_session() as session:
-        tasks = await session.scalars(select(Task).where(Task.user == userId, Task.status == False))
+        tasks = await session.scalars(select(Task).where(Task.user == userId))
         
         serialized_tasks = [
             TaskSchema.model_validate(t).model_dump() for t in tasks

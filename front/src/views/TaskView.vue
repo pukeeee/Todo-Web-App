@@ -156,7 +156,7 @@ export default {
     flex-grow: 1; /* Растягиваем список задач */
     overflow-y: auto; /* Прокрутка, если задач много */
     background: none; /* Убедись, что фон отсутствует */
-    max-height: calc(100vh - 80px - 60px); /* Высота экрана - навбар - шапка */
+    max-height: calc(100vh - 160px); /* Высота экрана - навбар - шапка */
 }
 
 .task-item {
