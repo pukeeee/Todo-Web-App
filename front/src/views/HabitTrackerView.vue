@@ -51,6 +51,8 @@
                     </ul>
                 </div>
             </div>
+            <!-- Ваша кнопка -->
+            <CreateTaskButton :onClick="handleCreateTask" />
         </div>
     </div>
 </template>
@@ -58,16 +60,22 @@
 <script>
 import { ref } from 'vue';
 import { API_URL } from '../config.js';
+import CreateTaskButton from '@/components/CreateTaskButton.vue'; // Импортируем кнопку
+
 
 export default {
     name: 'HabitTrackerView',
+    components: {
+        CreateTaskButton, // Регистрируем компонент
+    },
     setup() {
         const activeTab = ref(1);
         const categories = ref({
             "Completed": [],
             "In Progress": []
         });
-        const isSwiping = ref(false);
+        const isSwiping = ref(false); // Индикатор, идет ли свайп
+        const currentSwipedTask = ref(null); // Хранит текущую свайпаемую задачу
         const startX = ref(0);
         const startY = ref(0);
 
@@ -87,19 +95,27 @@ export default {
             }
         };
 
+        const handleCreateTask = () => {
+            console.log('Create Task Button Clicked');
+            // Здесь можно открыть модальное окно или выполнить другие действия
+            alert('zalupa penis hui vagina!');
+        };
+
         const setActiveTab = async (index) => {
             activeTab.value = index;
             await fetchTasks();
         };
 
         const startSwipe = (task, event) => {
+            if (isSwiping.value) return; // Если уже идет свайп, игнорируем
             isSwiping.value = true;
-            startX.value = event.touches ? event.touches[0].clientX : event.clientX; // Координаты по X
-            startY.value = event.touches ? event.touches[0].clientY : event.clientY; // Координаты по Y
+            currentSwipedTask.value = task; // Устанавливаем текущую задачу для свайпа
+            startX.value = event.touches ? event.touches[0].clientX : event.clientX;
+            startY.value = event.touches ? event.touches[0].clientY : event.clientY;
         };
 
         const onSwipe = (task, event) => {
-            if (!isSwiping.value) return;
+            if (!isSwiping.value || currentSwipedTask.value !== task) return; // Проверяем, что свайп выполняется для текущей задачи
 
             const currentX = event.touches ? event.touches[0].clientX : event.clientX;
             const currentY = event.touches ? event.touches[0].clientY : event.clientY;
@@ -107,27 +123,30 @@ export default {
             const deltaX = currentX - startX.value;
             const deltaY = currentY - startY.value;
 
-            // Проверяем, что движение по горизонтали больше, чем по вертикали
+            // Проверяем, что движение по горизонтали больше вертикального
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 event.preventDefault(); // Отключаем стандартное поведение прокрутки
-                if (deltaX < -50) {
-                    task.swipeAction = 'left'; // Свайп влево
-                } else if (deltaX > 50) {
+                if (deltaX > 50) {
                     task.swipeAction = 'right'; // Свайп вправо
+                    task.showIcons = true;
+                } else if (deltaX < -50) {
+                    task.swipeAction = 'left'; // Свайп влево
+                    task.showIcons = true;
                 }
             }
         };
 
         const endSwipe = (task) => {
+            if (currentSwipedTask.value !== task) return; // Если это не текущая свайпаемая задача, ничего не делаем
+
             isSwiping.value = false;
-            if (!task.swipeAction) {
-                task.swipeAction = null;
-            }
+            currentSwipedTask.value = null; // Сбрасываем текущую задачу
         };
 
         const resetAllSwipes = () => {
             Object.values(categories.value).forEach((tasks) => {
                 tasks.forEach((t) => {
+                    t.showIcons = false;
                     t.swipeAction = null;
                 });
             });
@@ -135,8 +154,9 @@ export default {
 
         const onTaskClick = (task) => {
             if (task.swipeAction) {
-                // Сбрасываем свайп только у этой задачи
+                // Закрываем только текущий активный свайп
                 task.swipeAction = null;
+                task.showIcons = false;
             }
         };
 
@@ -169,6 +189,7 @@ export default {
             completeTask,
             isSwiping,
             onTaskClick,
+            handleCreateTask,
         };
     },
 };
@@ -346,4 +367,10 @@ ul {
 .icon.complete {
     color: green;
 } */
+
+* {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
 </style>
