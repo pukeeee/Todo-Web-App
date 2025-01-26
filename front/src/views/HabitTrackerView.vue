@@ -22,20 +22,6 @@
                         <li
                             v-for="task in tasks"
                             :key="task.id"
-<<<<<<< HEAD
-                            :class="['post-item', { 'swipe-left': task.swipeAction === 'left', 'swipe-right': task.swipeAction === 'right' }]"
-                            @click="resetSwipe(task)"
-                            v-touch:swipe.left="() => onSwipeLeft(task)"
-                            v-touch:swipe.right="() => onSwipeRight(task)"
-                        >
-                            <div class="task-content">
-                                <h3 class="post-title">{{ task.text }}</h3>
-                                <div v-if="task.showIcons" class="swipe-icons">
-                                    <span v-if="task.swipeAction === 'right'" class="icon delete" @click="deleteTask(task.id)">🗑️</span>
-                                    <span v-if="task.swipeAction === 'left'" class="icon edit" @click="editTask(task.id)">✏️</span>
-                                    <span v-if="task.swipeAction === 'left'" class="icon done" @click="markAsDone(task.id)">✅</span>
-                                </div>
-=======
                             class="post-item"
                             @mousedown="startSwipe(task, $event)"
                             @mousemove="onSwipe(task, $event)"
@@ -60,7 +46,6 @@
                             <div class="swipe-icons-right">
                                 <span class="icon edit" @click="editTask(task)">✏️</span>
                                 <span class="icon complete" @click="completeTask(task)">✅</span>
->>>>>>> 889d46c (zbs swipes)
                             </div>
                         </li>
                     </ul>
@@ -94,89 +79,17 @@ export default {
                     headers: { 'ngrok-skip-browser-warning': 'true' },
                 });
                 const data = await response.json();
-
-                // Добавляем свойства showIcons и swipeAction
-                const processedData = data.map(task => ({
-                    ...task,
-                    showIcons: false,  // Изначально кнопки скрыты
-                    swipeAction: null, // Нет активного свайпа
-                }));
-
                 // Разделение задач по статусу
-                categories.value['In Progress'] = processedData.filter((task) => task.status == 0);
-                categories.value['Completed'] = processedData.filter((task) => task.status == 1);
-
+                categories.value['In Progress'] = data.filter((task) => task.status == 0);
+                categories.value['Completed'] = data.filter((task) => task.status == 1);
             } catch (error) {
                 console.log('Error fetching tasks:', error);
             }
         };
 
-
         const setActiveTab = async (index) => {
             activeTab.value = index;
-            // Повторно вызываем fetchTasks только если данных нет
-            if (!categories.value['In Progress'].length && !categories.value['Completed'].length) {
-                await fetchTasks();
-            }
-        };
-
-        const resetAllSwipes = () => {
-            categories.value['In Progress'].forEach((t) => {
-                t.showIcons = false;
-                t.swipeAction = null;
-            });
-            categories.value['Completed'].forEach((t) => {
-                t.showIcons = false;
-                t.swipeAction = null;
-            });
-        };
-
-        const onSwipeLeft = (task) => {
-            console.log('Swipe left detected for task:', task);
-
-            // Проверяем, есть ли активный свайп на текущей задаче
-            if (!task.showIcons || task.swipeAction !== 'left') {
-                resetAllSwipes(); // Сбрасываем свайпы у всех задач
-                task.showIcons = true; // Включаем иконки для текущей задачи
-                task.swipeAction = 'left'; // Устанавливаем направление свайпа
-            } else {
-                task.showIcons = false; // Если свайп уже активен, убираем его
-                task.swipeAction = null;
-            }
-        };
-
-        const onSwipeRight = (task) => {
-            console.log('Swipe right detected for task:', task);
-
-            // Проверяем, есть ли активный свайп на текущей задаче
-            if (!task.showIcons || task.swipeAction !== 'right') {
-                resetAllSwipes(); // Сбрасываем свайпы у всех задач
-                task.showIcons = true; // Включаем иконки для текущей задачи
-                task.swipeAction = 'right'; // Устанавливаем направление свайпа
-            } else {
-                task.showIcons = false; // Если свайп уже активен, убираем его
-                task.swipeAction = null;
-            }
-        };
-        
-        const resetSwipe = (task) => {
-            task.showIcons = false;
-            task.swipeAction = null;
-        };
-
-        const editTask = (taskId) => {
-            console.log('Edit task with ID:', taskId);
-            // Добавьте функционал редактирования
-        };
-
-        const markAsDone = (taskId) => {
-            console.log('Mark as done task with ID:', taskId);
-            // Добавьте функционал выполнения задачи
-        };
-
-        const deleteTask = (taskId) => {
-            console.log('Delete task with ID:', taskId);
-            // Добавьте функционал удаления задачи
+            await fetchTasks();
         };
 
         const startSwipe = (task, event) => {
@@ -248,11 +161,6 @@ export default {
             activeTab,
             categories,
             setActiveTab,
-<<<<<<< HEAD
-            onSwipeLeft,
-            onSwipeRight,
-            resetSwipe,
-=======
             startSwipe,
             onSwipe,
             endSwipe,
@@ -261,7 +169,6 @@ export default {
             completeTask,
             isSwiping,
             onTaskClick,
->>>>>>> 889d46c (zbs swipes)
         };
     },
 };
@@ -281,12 +188,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-<<<<<<< HEAD
-    width: 100%; /* Занимаем всю ширину родителя */
-    margin-bottom: 0; /* Убираем синюю полоску снизу */
-=======
     width: 100%;
->>>>>>> 889d46c (zbs swipes)
 }
 
 .tab-list {
@@ -322,76 +224,11 @@ export default {
 
 /* Стили панелей с задачами */
 .tab-panels {
-<<<<<<< HEAD
-    width: 100%;
-    margin: 0 auto;
-    /* background-color: #ffffff; */
-    padding: 16px;
-    /* border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-    list-style-type: none;
-    box-sizing: border-box; /* Включаем отступы в ширину контейнера */
-    overflow-y: auto; /* Добавляем прокрутку */
-    max-height: calc(100vh - 160px); /* Учитываем высоту экрана и оставляем отступ снизу */
-}
-
-.task-content {
-    flex: 1;
-}
-
-.post-item {
-    margin-bottom: 16px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    background-color: #f9f9f9; /* Легкий серый фон для поста */
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Легкая тень для поста */
-    list-style-type: none; /* Убираем точки перед элементами списка */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    user-select: none; /* Отключает выделение текста */
-    -webkit-user-drag: none; /* Отключает перетаскивание на iOS */
-    touch-action: none; /* Отключает стандартные жесты браузера */
-}
-
-.post-item.swipe-right {
-    background-color: #ffcccc; /* Красный фон для свайпа вправо */
-    transition: background-color 0.3s;
-}
-
-.post-item.swipe-left {
-    background-color: #ccffcc; /* Зеленый фон для свайпа влево */
-    transition: background-color 0.3s;
-}
-
-.post-item:hover {
-    background-color: #e6e6e6; /* Светлый фон при наведении */
-}
-
-.post-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 4px;
-    color: #1f2937; /* Темный текст */
-}
-
-.post-meta {
-    display: flex;
-    gap: 4px;
-    font-size: 12px;
-    color: #6b7280; /* Средне-серый текст для метаинформации */
-    flex-wrap: wrap;
-    align-items: center;
-    list-style-type: none; /* Убираем точки перед метаинформацией */
-=======
     width: 100%; /* Устанавливаем ширину табов по контейнеру */
     max-width: 400px; /* Максимальная ширина, чтобы не выходило за экран */
     margin: 0 auto; /* Центрирование содержимого */
     overflow-x: hidden; /* Убираем горизонтальный скролл */
     max-height: calc(100vh - 160px); /* Учет высоты экрана и отступов */
->>>>>>> 889d46c (zbs swipes)
 }
 
 ul {
@@ -400,53 +237,6 @@ ul {
     list-style: none;
 }
 
-<<<<<<< HEAD
-.swipe-icons {
-    display: flex;
-    gap: 8px;
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 1 !important; /* По умолчанию скрыто */
-    transition: opacity 0.3s ease; /* Анимация появления */
-    z-index: 10; /* Убедитесь, что кнопка выше других элементов */
-}
-
-.task.swipe-left .swipe-icons,
-.task.swipe-right .swipe-icons {
-    opacity: 1; /* Показать кнопки */
-}
-
-
-.icon {
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
-    background-color: #fff; /* Цвет фона для видимости */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Легкая тень для эффекта */
-    transition: background-color 0.3s;
-}
-
-.icon:hover {
-    background-color: #f0f0f0;
-}
-
-
-@media (max-width: 768px) {
-    .habit-tracker-container {
-        padding: 8px;
-    }
-
-    .tab-button {
-        font-size: 12px;
-    }
-
-    .post-item {
-        padding: 8px;
-    }
-=======
 /* Элементы задач */
 .post-item {
     margin: 0 auto;
@@ -463,7 +253,6 @@ ul {
 
 .post-item:hover {
     background-color: #eaeaea;
->>>>>>> 889d46c (zbs swipes)
 }
 
 .post-title {
