@@ -20,8 +20,7 @@
                 >
                     <ul>
                         <li
-                            v-for="task in tasks"
-                            :key="task.id"
+                            v-for="task in tasks" :key="task.id"
                             class="post-item"
                             @mousedown="startSwipe(task, $event)"
                             @mousemove="onSwipe(task, $event)"
@@ -41,11 +40,11 @@
 
                             <!-- Кнопки для свайпа -->
                             <div class="swipe-icons-left">
-                                <span class="icon delete" @click="deleteTask(task)">🗑</span>
+                                <span class="icon delete" @click="deleteTask(task.id)">🗑</span>
                             </div>
                             <div class="swipe-icons-right">
                                 <span class="icon edit" @click="editTask(task)">✏️</span>
-                                <span class="icon complete" @click="completeTask(task)">✅</span>
+                                <span class="icon complete" @click="completeTask(task.id)">✅</span>
                             </div>
                         </li>
                     </ul>
@@ -69,6 +68,10 @@ export default {
         CreateTaskButton, // Регистрируем компонент
     },
     setup() {
+
+        const tasks = ref([]);
+        const newTask = ref('');
+
         const activeTab = ref(1);
         const categories = ref({
             "Completed": [],
@@ -170,8 +173,27 @@ export default {
             resetAllSwipes();
         };
 
-        const completeTask = (task) => {
-            console.log('Task completed:', task.id);
+        const completeTask = async (taskId) => {
+            try {
+                const tg_user = window.Telegram.WebApp.initDataUnsafe?.user;
+                const response = await fetch(`${API_URL}/api/completed`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ id: taskId }),
+                });
+
+                if (response.ok) {
+                    await fetchTasks(); // Обновляем список задач
+                } else {
+                    console.error('Ошибка при завершении задачи:', response.status);
+                }
+            } catch (error) {
+                console.error('Ошибка при выполнении запроса:', error);
+            }
+
             resetAllSwipes();
         };
 
@@ -316,11 +338,11 @@ ul {
     position: absolute;
     right: 0;
     top: 0;
-    bottom: 0; /* Увеличиваем область до всей высоты элемента */
+    bottom: 0;
     height: 100%;
     padding: 0 16px;
-    border-radius: 8px; /* Совпадает с радиусом углов post-item */
-    gap: 8px;
+    border-radius: 8px;
+    gap: 16px;
     transition: transform 0.3s ease, background-color 0.3s ease;
     background-color: transparent;
     opacity: 0;
@@ -354,6 +376,10 @@ ul {
 .icon {
     font-size: 20px;
     cursor: pointer;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* .icon.delete {
