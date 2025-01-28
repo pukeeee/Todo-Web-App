@@ -65,7 +65,7 @@ export default {
 
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user
-                const response = await fetch(`${API_URL}/api/add`, {
+                const response = await fetch(`${API_URL}/api/task/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

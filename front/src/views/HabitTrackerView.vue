@@ -163,8 +163,28 @@ export default {
             }
         };
 
-        const deleteTask = (task) => {
-            console.log('Task deleted:', task.id);
+        const deleteTask = async (taskId) => {
+            try {
+                const tg_user = window.Telegram.WebApp.initDataUnsafe?.user;
+                console.log("Deleting task with ID:", taskId); // Лог для отладки
+                const response = await fetch(`${API_URL}/api/tasks/delete/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ tgId: tg_user.id }) // Добавляем tgId для проверки на сервере
+                });
+
+                if (response.ok) {
+                    await fetchTasks(); // Обновляем список задач
+                } else {
+                    console.error('Ошибка при удалении задачи:', response.status);
+                }
+            } catch (error) {
+                console.error('Ошибка при выполнении запроса:', error);
+            }
+
             resetAllSwipes();
         };
 
