@@ -57,6 +57,22 @@ async def getTask(userId):
 
 
 
+async def deleteTask(taskId: int, tgId: int) -> int:
+    async with async_session() as session:
+        user = await session.scalar(select(User).where(User.tgId == tgId))
+        if not user:
+            return 0
+        
+        result = await session.execute(delete(Task).where(Task.id == taskId, Task.user == user.id)
+                                        .returning(Task.id))
+        deletedTaskId = result.scalar()
+        await session.commit()
+        
+        return deletedTaskId if deletedTaskId else 0
+
+
+
+
 async def getProfile(userId):
     async with async_session() as session:
         profile = await session.scalar(select(Profile).where(Profile.user == userId))

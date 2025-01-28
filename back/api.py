@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -15,6 +15,9 @@ class AddTask(BaseModel):
 
 class CompleteTask(BaseModel):
     id: int
+
+class DeleteTask(BaseModel):
+    tgId: int
 
 
 @asynccontextmanager
@@ -73,7 +76,19 @@ async def getProfile(tgId: int):
     }
 
 
-@app.post("/api/add")
+
+@app.delete("/api/tasks/delete/{taskId}")
+async def deleteTask(taskId: int, body: DeleteTask):
+    deletedTaskId = await rq.deleteTask(taskId, body.tgId)
+    print(f"Received taskId: {taskId}, tgId: {body.tgId}")
+    if deletedTaskId:
+        return {"status": "Task deleted successfully"}
+    else:
+        raise HTTPException(status_code = 404, detail = f"Task {deletedTaskId} not found")
+
+
+
+@app.post("/api/task/add")
 async def addTask(task: AddTask):
     user = await rq.setUser(task.tgId)
     await rq.addTask(user.id, task.text)
