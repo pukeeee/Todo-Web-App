@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
+    <div v-if="isVisible" class="modal-overlay" @click.self="$emit('closeModal')">
         <div class="modal">
             <h2>Create Task</h2>
             <input
@@ -10,7 +10,7 @@
             />
             <div class="modal-buttons">
                 <button @click="createTask" class="confirm">Create</button>
-                <button @click="closeModal" class="cancel">Close</button>
+                <button @click="$emit('closeModal')" class="cancel">Close</button>
             </div>
         </div>
     </div>
