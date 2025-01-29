@@ -1,27 +1,38 @@
 <template>
-    <button
-        class="create-task-button"
-        @click="handleClick"
-    >
+    <button class="create-task-button" @click="isModalVisible = true">
         ➕
     </button>
+
+    <CreateTaskModal 
+        :isVisible="isModalVisible" 
+        @taskCreated="onTaskCreated" 
+        @closeModal="isModalVisible = false" 
+    />
 </template>
 
 <script>
-    export default {
-        name: 'CreateTaskButton',
-        props: {
-            onClick: {
-            type: Function,
-            required: true,
-            },
-        },
-        methods: {
-            handleClick() {
-                this.onClick();
-            },
-        },
-    };
+import { ref } from "vue";
+import CreateTaskModal from "@/components/CreateTaskModal.vue";
+
+export default {
+    name: "CreateTaskButton",
+    components: { CreateTaskModal },
+    props: {
+        fetchTasks: Function, // Пробрасываем функцию обновления задач
+    },
+    setup(props) {
+        const isModalVisible = ref(false);
+
+        const onTaskCreated = () => {
+            props.fetchTasks(); // Вызываем обновление задач из HabitTrackerView
+        };
+
+        return {
+            isModalVisible,
+            onTaskCreated,
+        };
+    },
+};
 </script>
 
 <style scoped>
