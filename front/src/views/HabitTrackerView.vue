@@ -51,15 +51,16 @@
                 </div>
             </div>
             <!-- Ваша кнопка -->
-            <CreateTaskButton :onClick="handleCreateTask" />
+            <CreateTaskButton :fetchTasks="fetchTasks" />
         </div>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { API_URL } from '../config.js';
 import CreateTaskButton from '@/components/CreateTaskButton.vue'; // Импортируем кнопку
+
 
 
 export default {
@@ -68,7 +69,7 @@ export default {
         CreateTaskButton, // Регистрируем компонент
     },
     setup() {
-
+        const isModalVisible = ref(false);
         const tasks = ref([]);
         const newTask = ref('');
 
@@ -98,11 +99,11 @@ export default {
             }
         };
 
-        const handleCreateTask = () => {
-            console.log('Create Task Button Clicked');
-            // Здесь можно открыть модальное окно или выполнить другие действия
-            alert('zalupa penis hui vagina!');
-        };
+        // const handleCreateTask = () => {
+        //     console.log('Create Task Button Clicked');
+        //     // Здесь можно открыть модальное окно или выполнить другие действия
+        //     alert('zalupa penis hui vagina!');
+        // };
 
         const setActiveTab = async (index) => {
             activeTab.value = index;
@@ -217,7 +218,9 @@ export default {
             resetAllSwipes();
         };
 
-        fetchTasks();
+        onMounted(() => {
+            fetchTasks(); // Загружаем задачи при инициализации
+        });
 
         return {
             activeTab,
@@ -231,7 +234,10 @@ export default {
             completeTask,
             isSwiping,
             onTaskClick,
-            handleCreateTask,
+            isModalVisible,
+            tasks,
+            newTask,
+            fetchTasks,
         };
     },
 };
