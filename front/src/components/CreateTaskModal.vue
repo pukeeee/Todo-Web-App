@@ -1,6 +1,9 @@
 <template>
     <div v-if="isVisible" class="modal-overlay" @click.self="$emit('closeModal')">
         <div class="modal">
+            <button @click="$emit('closeModal')" class="close-button">
+                <span class="material-icons">close</span>
+            </button>
             <h2>Create Task</h2>
             <input
                 type="text"
@@ -9,8 +12,9 @@
                 @keyup.enter="createTask"
             />
             <div class="modal-buttons">
-                <button @click="createTask" class="confirm">Create</button>
-                <button @click="$emit('closeModal')" class="cancel">Close</button>
+                <button @click="createTask" class="confirm">
+                    <span class="material-icons">add_task</span>
+                </button>
             </div>
         </div>
     </div>
@@ -70,7 +74,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,21 +89,24 @@ export default {
     text-align: center;
     width: 300px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
 }
 
 /* Поле ввода */
 input {
-    width: 100%;
+    width: calc(100% - 20px); /* Уменьшаем ширину на размер отступов */
     padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
+    margin: 10px;  /* Добавляем отступ со всех сторон */
+    border: 1px solid #ff79c6;
     border-radius: 5px;
     font-size: 16px;
+    box-sizing: border-box; /* Учитываем padding в общей ширине */
+    outline: none; /* Убираем обводку при фокусе */
 }
 
 /* Кнопки */
 .modal-buttons {
-    display: flex;
+    /* display: flex; */
     justify-content: space-between;
     margin-top: 15px;
 }
@@ -113,12 +120,39 @@ button {
 }
 
 .confirm {
-    background-color: #28a745;
+    background-color: #ff79c6;
     color: white;
+    /* display: flex; */
+    align-items: center;
+    gap: 8px;
 }
 
-.cancel {
-    background-color: #dc3545;
-    color: white;
+.confirm .material-icons {
+    font-size: 20px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.close-button .material-icons {
+    font-size: 20px;
 }
 </style>
