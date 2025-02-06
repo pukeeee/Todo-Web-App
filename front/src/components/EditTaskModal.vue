@@ -4,16 +4,17 @@
             <button @click="$emit('closeModal')" class="close-button">
                 <span class="material-icons">close</span>
             </button>
-            <h2>Create Task</h2>
+            <h2>Edit Task</h2>
+            <div class="old-text">{{ oldText }}</div>
             <input
                 type="text"
                 v-model="taskText"
-                placeholder="Enter task text"
-                @keyup.enter="createTask"
+                placeholder="Enter new task text"
+                @keyup.enter="updateTask"
             />
             <div class="modal-buttons">
-                <button @click="createTask" class="confirm">
-                    <span class="material-icons">add_task</span>
+                <button @click="updateTask" class="confirm">
+                    <span class="material-icons">save</span>
                 </button>
             </div>
         </div>
@@ -25,33 +26,38 @@ import { ref } from "vue";
 import { API_URL } from "../config.js";
 
 export default {
-    name: "CreateTaskModal",
+    name: "EditTaskModal",
     props: {
         isVisible: Boolean,
+        taskId: Number,
+        oldText: String,
     },
     setup(props, { emit }) {
         const taskText = ref("");
 
-        const createTask = async () => {
+        const updateTask = async () => {
             if (!taskText.value.trim()) return;
 
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user;
-                const response = await fetch(`${API_URL}/api/task/add`, {
-                    method: "POST",
+                const response = await fetch(`${API_URL}/api/tasks/update/${props.taskId}`, {
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         "ngrok-skip-browser-warning": "true",
                     },
-                    body: JSON.stringify({ tgId: tg_user.id, text: taskText.value }),
+                    body: JSON.stringify({ 
+                        tgId: tg_user.id, 
+                        text: taskText.value 
+                    }),
                 });
 
                 if (response.ok) {
-                    emit("taskCreated"); // Сообщаем, что задача создана
-                    taskText.value = ""; // Очищаем поле ввода
-                    emit("closeModal"); // Закрываем модалку
+                    emit("taskUpdated");
+                    taskText.value = "";
+                    emit("closeModal");
                 } else {
-                    console.error("Ошибка создания задачи:", response.status);
+                    console.error("Ошибка обновления задачи:", response.status);
                 }
             } catch (error) {
                 console.error("Ошибка:", error);
@@ -60,14 +66,13 @@ export default {
 
         return {
             taskText,
-            createTask,
+            updateTask,
         };
     },
 };
 </script>
 
 <style scoped>
-/* Затемняющий фон */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -83,13 +88,11 @@ export default {
 }
 
 @media screen and (max-height: 500px) {
-    /* Стили для случая, когда открыта клавиатура */
     .modal-overlay {
         padding-top: 10px;
     }
 }
 
-/* Само модальное окно */
 .modal {
     background: #fff;
     padding: 20px;
@@ -100,21 +103,27 @@ export default {
     position: relative;
 }
 
-/* Поле ввода */
-input {
-    width: calc(100% - 20px); /* Уменьшаем ширину на размер отступов */
+.old-text {
+    margin: 10px 0;
     padding: 10px;
-    margin: 10px;  /* Добавляем отступ со всех сторон */
+    background: #f5f5f5;
+    border-radius: 5px;
+    font-style: italic;
+    color: #666;
+}
+
+input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px;
     border: 1px solid #ff79c6;
     border-radius: 5px;
     font-size: 16px;
-    box-sizing: border-box; /* Учитываем padding в общей ширине */
-    outline: none; /* Убираем обводку при фокусе */
+    box-sizing: border-box;
+    outline: none;
 }
 
-/* Кнопки */
 .modal-buttons {
-    /* display: flex; */
     justify-content: space-between;
     margin-top: 15px;
 }
@@ -130,7 +139,6 @@ button {
 .confirm {
     background-color: #ff79c6;
     color: white;
-    /* display: flex; */
     align-items: center;
     gap: 8px;
 }

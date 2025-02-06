@@ -91,6 +91,18 @@ async def getProfile(userId):
         
         return profile  # Возвращаем найденный профиль
 
-# async def getCompletedTasksCounter(userId):
-#     async with async_session() as session:
-#         return await session.scalar(select(func.count(Task.id)).where(Task.status == True, Task.user == userId))
+
+
+async def updateTask(taskId: int, tgId: int, text: str):
+    async with async_session() as session:
+        user = await session.scalar(select(User).where(User.tgId == tgId))
+        if not user:
+            return 0
+
+        result = await session.execute(update(Task).where(Task.id == taskId, Task.user == user.id)
+                                        .values(text = text)
+                                        .returning(Task.id))
+        updatedTaskId = result.scalar()
+        await session.commit()
+        
+        return updatedTaskId if updatedTaskId else 0

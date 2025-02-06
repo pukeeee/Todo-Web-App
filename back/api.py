@@ -20,6 +20,11 @@ class DeleteTask(BaseModel):
     tgId: int
 
 
+class UpdateTask(BaseModel):
+    tgId: int
+    text: str
+
+
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     await init_db()
@@ -98,4 +103,11 @@ async def addTask(task: AddTask):
 @app.patch("/api/completed")
 async def markAsCompleted(task: CompleteTask):
     await rq.markAsCompleted(task.id)
+    return {"status": "ok"}
+
+
+
+@app.patch("/api/tasks/update/{taskId}")
+async def updateTask(taskId: int, body: UpdateTask):
+    await rq.updateTask(taskId, body.tgId, body.text)
     return {"status": "ok"}

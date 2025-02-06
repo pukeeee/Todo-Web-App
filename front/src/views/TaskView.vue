@@ -30,7 +30,7 @@
                             @touchend="endSwipe(task)"
                             @click="onTaskClick(task)" 
                             :class="{
-                                'swipe-left': task.swipeAction === 'left',
+                                'swipe-left': task.swipeAction === 'left' && activeTab === 1,
                                 'swipe-right': task.swipeAction === 'right',
                             }"
                         >
@@ -40,11 +40,24 @@
 
                             <!-- Кнопки для свайпа -->
                             <div class="swipe-icons-left">
-                                <span class="icon delete" @click="deleteTask(task.id)">🗑</span>
+                                <template v-if="activeTab === 1">
+                                    <span class="icon delete" @click="deleteTask(task.id)">
+                                        <span class="material-icons">delete</span>
+                                    </span>
+                                </template>
+                                <template v-else>
+                                    <span class="icon delete" @click="deleteTask(task.id)">
+                                        <span class="material-icons">delete</span>
+                                    </span>
+                                </template>
                             </div>
-                            <div class="swipe-icons-right">
-                                <span class="icon edit" @click="editTask(task)">✏️</span>
-                                <span class="icon complete" @click="completeTask(task.id)">✅</span>
+                            <div class="swipe-icons-right" v-if="activeTab === 1">
+                                <span class="icon edit" @click="editTask(task)">
+                                    <span class="material-icons">edit</span>
+                                </span>
+                                <span class="icon complete" @click="completeTask(task.id)">
+                                    <span class="material-icons">done</span>
+                                </span>
                             </div>
                         </li>
                     </ul>
@@ -53,20 +66,27 @@
             <!-- Ваша кнопка -->
             <CreateTaskButton :fetchTasks="fetchTasks" />
         </div>
+        <EditTaskModal 
+            :isVisible="isEditModalVisible"
+            :taskId="editingTaskId"
+            :oldText="editingTaskText"
+            @closeModal="closeEditModal"
+            @taskUpdated="fetchTasks"
+        />
     </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
 import { API_URL } from '../config.js';
-import CreateTaskButton from '@/components/CreateTaskButton.vue'; // Импортируем кнопку
-
-
+import CreateTaskButton from '@/components/CreateTaskButton.vue';
+import EditTaskModal from '@/components/EditTaskModal.vue';
 
 export default {
     name: 'TaskView',
     components: {
-        CreateTaskButton, // Регистрируем компонент
+        CreateTaskButton,
+        EditTaskModal,
     },
     setup() {
         const isModalVisible = ref(false);
@@ -78,10 +98,14 @@ export default {
             "Completed": [],
             "In Progress": []
         });
-        const isSwiping = ref(false); // Индикатор, идет ли свайп
-        const currentSwipedTask = ref(null); // Хранит текущую свайпаемую задачу
+        const isSwiping = ref(false);
+        const currentSwipedTask = ref(null);
         const startX = ref(0);
         const startY = ref(0);
+
+        const isEditModalVisible = ref(false);
+        const editingTaskId = ref(null);
+        const editingTaskText = ref('');
 
         const fetchTasks = async () => {
             try {
@@ -91,7 +115,6 @@ export default {
                     headers: { 'ngrok-skip-browser-warning': 'true' },
                 });
                 const data = await response.json();
-                // Разделение задач по статусу
                 categories.value['In Progress'] = data.filter((task) => task.status == 0);
                 categories.value['Completed'] = data.filter((task) => task.status == 1);
             } catch (error) {
@@ -105,15 +128,15 @@ export default {
         };
 
         const startSwipe = (task, event) => {
-            if (isSwiping.value) return; // Если уже идет свайп, игнорируем
+            if (isSwiping.value) return;
             isSwiping.value = true;
-            currentSwipedTask.value = task; // Устанавливаем текущую задачу для свайпа
+            currentSwipedTask.value = task;
             startX.value = event.touches ? event.touches[0].clientX : event.clientX;
             startY.value = event.touches ? event.touches[0].clientY : event.clientY;
         };
 
         const onSwipe = (task, event) => {
-            if (!isSwiping.value || currentSwipedTask.value !== task) return; // Проверяем, что свайп выполняется для текущей задачи
+            if (!isSwiping.value || currentSwipedTask.value !== task) return;
 
             const currentX = event.touches ? event.touches[0].clientX : event.clientX;
             const currentY = event.touches ? event.touches[0].clientY : event.clientY;
@@ -121,24 +144,23 @@ export default {
             const deltaX = currentX - startX.value;
             const deltaY = currentY - startY.value;
 
-            // Проверяем, что движение по горизонтали больше вертикального
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                event.preventDefault(); // Отключаем стандартное поведение прокрутки
+                event.preventDefault();
                 if (deltaX > 50) {
-                    task.swipeAction = 'right'; // Свайп вправо
+                    task.swipeAction = 'right';
                     task.showIcons = true;
-                } else if (deltaX < -50) {
-                    task.swipeAction = 'left'; // Свайп влево
+                } else if (deltaX < -50 && activeTab.value === 1) {
+                    task.swipeAction = 'left';
                     task.showIcons = true;
                 }
             }
         };
 
         const endSwipe = (task) => {
-            if (currentSwipedTask.value !== task) return; // Если это не текущая свайпаемая задача, ничего не делаем
+            if (currentSwipedTask.value !== task) return;
 
             isSwiping.value = false;
-            currentSwipedTask.value = null; // Сбрасываем текущую задачу
+            currentSwipedTask.value = null;
         };
 
         const resetAllSwipes = () => {
@@ -152,7 +174,6 @@ export default {
 
         const onTaskClick = (task) => {
             if (task.swipeAction) {
-                // Закрываем только текущий активный свайп
                 task.swipeAction = null;
                 task.showIcons = false;
             }
@@ -161,18 +182,18 @@ export default {
         const deleteTask = async (taskId) => {
             try {
                 const tg_user = window.Telegram.WebApp.initDataUnsafe?.user;
-                console.log("Deleting task with ID:", taskId); // Лог для отладки
+                console.log("Deleting task with ID:", taskId);
                 const response = await fetch(`${API_URL}/api/tasks/delete/${taskId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'ngrok-skip-browser-warning': 'true'
                     },
-                    body: JSON.stringify({ tgId: tg_user.id }) // Добавляем tgId для проверки на сервере
+                    body: JSON.stringify({ tgId: tg_user.id })
                 });
 
                 if (response.ok) {
-                    await fetchTasks(); // Обновляем список задач
+                    await fetchTasks();
                 } else {
                     console.error('Ошибка при удалении задачи:', response.status);
                 }
@@ -184,8 +205,16 @@ export default {
         };
 
         const editTask = (task) => {
-            console.log('Edit task:', task.id);
+            editingTaskId.value = task.id;
+            editingTaskText.value = task.text;
+            isEditModalVisible.value = true;
             resetAllSwipes();
+        };
+
+        const closeEditModal = () => {
+            isEditModalVisible.value = false;
+            editingTaskId.value = null;
+            editingTaskText.value = '';
         };
 
         const completeTask = async (taskId) => {
@@ -201,7 +230,7 @@ export default {
                 });
 
                 if (response.ok) {
-                    await fetchTasks(); // Обновляем список задач
+                    await fetchTasks();
                 } else {
                     console.error('Ошибка при завершении задачи:', response.status);
                 }
@@ -213,7 +242,7 @@ export default {
         };
 
         onMounted(() => {
-            fetchTasks(); // Загружаем задачи при инициализации
+            fetchTasks();
         });
 
         return {
@@ -232,6 +261,10 @@ export default {
             tasks,
             newTask,
             fetchTasks,
+            isEditModalVisible,
+            editingTaskId,
+            editingTaskText,
+            closeEditModal,
         };
     },
 };
@@ -287,11 +320,11 @@ export default {
 
 /* Стили панелей с задачами */
 .tab-panels {
-    width: 100%; /* Устанавливаем ширину табов по контейнеру */
-    max-width: 400px; /* Максимальная ширина, чтобы не выходило за экран */
-    margin: 0 auto; /* Центрирование содержимого */
-    overflow-x: hidden; /* Убираем горизонтальный скролл */
-    max-height: calc(100vh - 160px); /* Учет высоты экрана и отступов */
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 160px);
 }
 
 ul {
@@ -308,7 +341,7 @@ ul {
     border-radius: 8px;
     background-color: #f9f9f9;
     transition: transform 0.3s ease, background-color 0.3s ease;
-    overflow-x: hidden; /* Убираем горизонтальные скроллы внутри */
+    overflow-x: hidden;
     position: relative;
     max-width: calc(100% - 32px);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -319,12 +352,12 @@ ul {
 }
 
 .post-title {
-    user-select: none; /* Запрет на выделение текста */
+    user-select: none;
     font-size: 16px;
     font-weight: bold;
     color: #000;
     overflow: hidden;
-    text-overflow: ellipsis; /* Троеточие при переполнении */
+    text-overflow: ellipsis;
 }
 
 /* Стили для свайпа */
@@ -343,10 +376,10 @@ ul {
     position: absolute;
     left: 0;
     top: 0;
-    bottom: 0; /* Увеличиваем область до всей высоты элемента */
+    bottom: 0;
     height: 100%;
     padding: 0 16px;
-    border-radius: 8px; /* Совпадает с радиусом углов post-item */
+    border-radius: 8px;
     gap: 8px;
     transition: transform 0.3s ease, background-color 0.3s ease;
     background-color: transparent;
@@ -362,7 +395,7 @@ ul {
     height: 100%;
     padding: 0 16px;
     border-radius: 8px;
-    gap: 16px;
+    gap: 8px;
     transition: transform 0.3s ease, background-color 0.3s ease;
     background-color: transparent;
     opacity: 0;
@@ -400,19 +433,12 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: white;
 }
 
-/* .icon.delete {
-    color: red;
+.icon .material-icons {
+    font-size: 24px;
 }
-
-.icon.edit {
-    color: orange;
-}
-
-.icon.complete {
-    color: green;
-} */
 
 * {
     user-select: none;
